@@ -27,7 +27,7 @@ public class MainClass {
 		
 		gfxInstance.clear();
 		gfxInstance.about();
-		Thread.sleep(2500);
+		Thread.sleep(500);
 		gfxInstance.clear();
 		gfxInstance.reset();
 	}
