@@ -1,9 +1,10 @@
 package uk.ac.leedsbeckett.oop.c3600712.assignment;
 
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
-import java.beans.JavaBean;
 import java.io.*;
 import java.lang.Math;
 import java.lang.reflect.Field;
@@ -16,11 +17,31 @@ import uk.ac.leedsbeckett.oop.LBUGraphics;
 public class GraphicsSystem extends LBUGraphics {
 	private static final long serialVersionUID = 1L;
 	private ArrayList<String> commandHistory = new ArrayList<String>();
+	private int commandIndex = 0;
+	
+	public GraphicsSystem() {
+		JTextField textComponent = (JTextField) this.getComponent(0);
+		
+		textComponent.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_UP) {
+					if (commandIndex < commandHistory.size()) commandIndex += 1;
+				} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+					if (commandIndex > -1) commandIndex -= 1;
+					if (commandIndex == -1) textComponent.setText("");
+				} else commandIndex = 0;
+				
+				if (commandIndex != 0) {
+					String command = commandIndex != -1 ? commandHistory.get(commandHistory.size()-commandIndex) : "";
+					textComponent.setText(command);
+				}
+			}
+		});
+	}
 	
 	public void processCommand(String input) {
 		String[] inputArray = input.split(" ");
 		if (inputArray.length == 0) return;
-		
 		String command = inputArray[0].toLowerCase();
 		String[] args = Arrays.copyOfRange(inputArray, 1, inputArray.length);
 		
@@ -39,14 +60,49 @@ public class GraphicsSystem extends LBUGraphics {
 			else if (command.equals("setpencolour")) input = setPenColour(command, args); // Done so that the command can be logged when colour chooser used
 			else if (Arrays.asList("black", "white", "red", "green").contains(command)) colourCommand(command, args);
 			else if (command.equals("fill")) fill(args);
+			else if (command.equals("history")) history(args);
+			else if (command.equals("clearhistory")) clearHistory(args);
+			else if (command.equals("pattern")) drawPattern(args);
+			
 			else throw new UserException("Invalid command.");
 			
-			if (!Arrays.asList("load", "save").contains(input.split(" ")[0].toLowerCase())) commandHistory.add(input);
+			if (!Arrays.asList("load", "save", "clearhistory").contains(input.split(" ")[0].toLowerCase())) commandHistory.add(input);
 		} catch(UserException e) {
 			showDialog(e.getMessage(), "Error", true);
 		}
 	}
 	
+	public void clearHistory(String[] args) throws UserException {
+		if (args.length != 0) throw new UserException("Invalid Usage. Correct Usage: clearhistory");
+		commandHistory.clear();
+	}
+	
+	public void history(String[] args) throws UserException {
+		if (args.length != 0) throw new UserException("Invalid Usage. Correct Usage: clearhistory");
+		String message = "";
+		
+		if (commandHistory.size() == 0) message = "The history is empty at the moment. Try again after entering some commands.";
+		for (String command : commandHistory) {
+			message += (command+"\n");
+		}
+		showDialog(message, "History", false);
+	}
+	
+	public void drawPattern(String[] args) throws UserException {
+		if (args.length != 0) throw new UserException("Invalid Usage. Correct Usage: pattern");
+		Point start = new Point(getxPos(), getyPos());
+		for (int i=0; i < 180; i++) {
+			forward(100);
+			turnRight(30);
+			forward(20);
+			turnLeft(60);
+			forward(50);
+			turnRight(30);
+			setxPos(start.x);
+			setyPos(start.y);
+			turnRight(6);
+		}
+	}
 	
 	public void clear(String[] args) throws UserException {
 		if (args.length != 0) throw new UserException("Invalid Usage. Correct Usage: clear");
