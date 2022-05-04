@@ -91,6 +91,7 @@ public class GraphicsSystem extends LBUGraphics {
 	public void drawPattern(String[] args) throws UserException {
 		if (args.length != 0) throw new UserException("Invalid Usage. Correct Usage: pattern");
 		Point start = new Point(getxPos(), getyPos());
+		penDown();
 		for (int i=0; i < 180; i++) {
 			forward(100);
 			turnRight(30);
@@ -102,6 +103,7 @@ public class GraphicsSystem extends LBUGraphics {
 			setyPos(start.y);
 			turnRight(6);
 		}
+		penUp();
 	}
 	
 	public void clear(String[] args) throws UserException {
@@ -116,6 +118,7 @@ public class GraphicsSystem extends LBUGraphics {
 	public void reset(String[] args) throws UserException {
 		if (args.length != 0) throw new UserException("Invalid Usage. Correct Usage: reset");
 		reset();
+		turnLeft(90);
 	}
 	
 	public void about(String[] args) throws UserException {
